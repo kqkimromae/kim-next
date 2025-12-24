@@ -5,7 +5,7 @@ export default function AboutPage() {
     <section className="container">
       <h1>About Me</h1>
       <p>
-        สวัสดีครับ/ค่ะ ฉันคือ <strong>ชื่อนักศึกษา</strong> นักศึกษาวิชา Advanced Web Development
+        สวัสดีครับ ผมคือ <strong>อับดุลฮากีม รอแแม</strong> นักศึกษาวิชา Advanced Web Development
         สนใจด้าน Frontend/Full-stack และการสร้าง Web App ที่ใช้งานจริง
       </p>
       <div className="card">
