@@ -1,62 +1,104 @@
 // app/blog/page.tsx
 import Link from "next/link";
-import DeleteButton from "./DeleteButton"; 
+import DeleteButton from "./DeleteButton"; // <--- เพิ่มบรรทัดนี้
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ source?: string; q?: string }>;
+}) {
+  // 1. (Next.js 15/16) ต้อง await searchParams ก่อนใช้งาน
+  const { source: rawSource, q: rawQ } = await searchParams;
 
-// บังคับให้หน้านี้เป็น Dynamic (ไม่ใช้ Cache) เพื่อให้เห็นข้อมูลที่กด New หรือ Delete ทันที
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+  const source = rawSource === "news" ? "news" : "products";
+  const q = rawQ || "";
 
-export default async function BlogPage() {
-  // ดึงข้อมูลจาก API ของเราเอง
-  // ใส่ { cache: "no-store" } เพื่อป้องกันอาการข้อมูลเก่าค้าง (สาเหตุของ 404 ในบางครั้ง)
-  const res = await fetch("http://localhost:3000/api/posts", { 
-    cache: "no-store" 
-  });
+  // 2. แก้ไขจุดที่ Error: เขียน URL ให้จบในบรรทัดเดียว (ห้ามเคาะ enter กลางชื่อตัวแปร)
+ const res = await fetch(
+  `http://localhost:3000/api/aggregate?source=${source}&q=${encodeURIComponent(q)}`,
+  { cache: "no-store" }
+);
+
   
-  if (!res.ok) {
-    return <section className="container"><h1>เกิดข้อผิดพลาดในการดึงข้อมูล</h1></section>;
-  }
-
-  const posts = await res.json();
+  const data = await res.json();
 
   return (
     <section className="container">
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-        <h1>Blog Posts</h1>
-        <Link className="btn" href="/blog/new" style={{ backgroundColor: "#0070f3", color: "white" }}>
-          + Create New Post
-        </Link>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <h1>Blog Aggregator</h1>
+        <div className="row">
+          <Link className="btn" href="/blog?source=products">Products</Link>
+          <Link className="btn" href="/blog?source=news">News</Link>
+          <Link className="btn" href="/blog/new">+ New</Link>
+        </div>
       </div>
 
-      {posts.length === 0 ? (
-        <p>ยังไม่มีบทความในขณะนี้</p>
-      ) : (
-        <div className="grid">
-          {posts.map((p: any) => (
-            <article key={p.slug} className="card" style={{ border: "1px solid #eaeaea", padding: "1.5rem", borderRadius: "10px" }}>
-              <h3 style={{ margin: "0 0 0.5rem 0" }}>{p.title}</h3>
-              <p style={{ color: "#666", fontSize: "0.9rem" }}>
-                <small>Published: {p.date}</small>
-              </p>
+      {/* 3. Search Form ที่เพิ่มเข้ามา */}
+      <form className="row" action="/blog" method="get" style={{ margin: "20px 0", gap: "10px", alignItems: "center" }}>
+        <input type="hidden" name="source" value={source} />
+        <input 
+            name="q" 
+            defaultValue={q} 
+            placeholder="search..." 
+            style={{ padding: "8px" }}
+        />
+        <button className="btn" type="submit">Search</button>
+      </form>
+
+      <h2>My Posts</h2>
+      <div className="grid">
+        {data.internal.map((p: any) => (
+          <article key={p.slug} className="card">
+            <h3>{p.title}</h3>
+            
+            {/* ส่วนที่เพิ่ม: จัดกลุ่มปุ่มต่างๆ ให้สวยงาม */}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
               
-              <div className="row" style={{ gap: "10px", marginTop: "1rem" }}>
-                {/* ปุ่มอ่านเนื้อหา */}
-                <Link className="btn" href={`/blog/${p.slug}`} style={{ fontSize: "0.8rem" }}>
-                  Read →
-                </Link>
-                
-                {/* ปุ่มแก้ไข (Step 5) */}
-                <Link className="btn btn-outline" href={`/blog/edit/${p.slug}`} style={{ fontSize: "0.8rem" }}>
-                  Edit
-                </Link>
-                
-                {/* ปุ่มลบ (Client Component) */}
-                <DeleteButton slug={p.slug} />
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
+              {/* 1. ปุ่มอ่าน (ของเดิม) */}
+              <Link className="btn" href={`/blog/${p.slug}`}>
+                Read →
+              </Link>
+
+              {/* 2. ปุ่มแก้ไข (เพิ่มใหม่) */}
+              {/* ตรวจสอบว่าเส้นทาง /blog/edit/[slug] ตรงกับ Folder ที่คุณสร้างไว้ */}
+              <Link className="btn" style={{ backgroundColor: '#f0ad4e', color: 'white' }} href={`/blog/edit/${p.slug}`}>
+                Edit
+              </Link>
+
+              {/* 3. ปุ่มลบ (เรียกใช้ Component ที่มีอยู่แล้ว) */}
+              <DeleteButton slug={p.slug} />
+              
+            </div>
+
+          </article>
+        ))}
+      </div>
+
+      <h2 style={{ marginTop: 18 }}>
+        {source === "news" ? "External News" : "External Products"}
+      </h2>
+      
+      {data.error ? <p><small>{data.error}</small></p> : null}
+      
+      <div className="grid">
+        {data.external.map((x: any) => (
+          <article key={x.id} className="card">
+            {x.image ? (
+              <img
+                src={x.image}
+                alt=""
+                style={{ width: "100%", height: 160, objectFit: "contain" }}
+              />
+            ) : null}
+            <h3>{x.title}</h3>
+            {x.subtitle ? <p><small>{x.subtitle}</small></p> : null}
+            {x.url ? (
+              <a className="btn" href={x.url} target="_blank">
+                Open{" "}
+              </a>
+            ) : null}
+          </article>
+        ))}
+      </div>
     </section>
   );
 }

@@ -28,6 +28,7 @@ export async function DELETE(req: Request) {
 }
 
 // 4. แก้ไขบทความ
+
 export async function PUT(req: Request) {
     const data = await req.json();
     updatePost(data);

@@ -4,14 +4,14 @@ import { notFound } from "next/navigation";
 export default async function PostDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
 
-    // เปลี่ยนมาดึงข้อมูลผ่าน API แทนเพื่อให้ได้ข้อมูลล่าสุดที่เพิ่ง New เข้าไป
+    // เปลี่ยนมาดึงข้อมูลผ่าน API แทนเพื่อให้ได้ข้อมูลล่าสุดที่เพิ่ง New เข้าไป    
     const res = await fetch("http://localhost:3000/api/posts", { 
     cache: "no-store" 
   });
 const posts = await res.json();
 
 // ค้นหา post จากข้อมูลที่ fetch มา
-const post = posts.find((p: any) => p.slug === decodeURIComponent(slug));
+const post = posts.find((p: any) => p.slug === decodeURIComponent(slug));   
 
 if (!post) {
     return notFound();

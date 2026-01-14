@@ -1,317 +1,369 @@
-/* =========================
-   THEME VARIABLES
-========================= */
+/* ==========================================================================
+   1. THEME VARIABLES
+   ========================================================================== */
 :root {
-  --bg: #e9f5f2;
-  --panel: rgba(255,255,255,0.9);
+  /* Light Mode - Soft Teal */
+  --bg: #f0f9f8;
+  --panel: rgba(255, 255, 255, 0.75); /* ปรับให้ใสขึ้นเล็กน้อยเพื่อโชว์พื้นหลัง */
   --text: #1f2937;
   --muted: #6b7280;
   --primary: #06b6d4;
   --primary-dark: #0891b2;
-  --ring: rgba(6, 182, 212, 0.35);
-  --radius: 18px;
+  --ring: rgba(6, 182, 212, 0.25);
+  --radius: 20px;
+  --border: rgba(255, 255, 255, 0.6); /* ปรับขอบให้กลืนไปกับ Glass */
 }
 
 :root.dark {
+  /* Dark Mode - Deep Slate */
   --bg: #0f172a;
-  --panel: rgba(17, 24, 39, 0.9);
-  --text: #e5e7eb;
-  --muted: #9ca3af;
+  --panel: rgba(30, 41, 59, 0.7);
+  --text: #f1f5f9;
+  --muted: #94a3b8;
   --primary: #22d3ee;
+  --border: rgba(255, 255, 255, 0.08);
 }
 
-/* =========================
-   BASE
-========================= */
+/* ==========================================================================
+   2. ANIMATIONS & KEYFRAMES (NEW ✨)
+   ========================================================================== */
+@keyframes blob-bounce {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes shine {
+  100% { left: 125%; }
+}
+
+/* ==========================================================================
+   3. BASE & LAYOUT
+   ========================================================================== */
 * {
   box-sizing: border-box;
 }
 
-html,
-body {
+html, body {
   margin: 0;
   padding: 0;
-  min-height: 100%;
-  background: radial-gradient(
-    1200px 800px at 10% 0%,
-    rgba(34, 211, 238, 0.15),
-    var(--bg) 60%
-  );
+  min-height: 100vh;
+  background-color: var(--bg);
   color: var(--text);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
-    Noto Sans Thai, Arial;
-  line-height: 1.7;
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Inter', sans-serif;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  
+  /* พื้นหลังใหม่: Gradient + Mesh เคลื่อนไหว */
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(34, 211, 238, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.1) 0px, transparent 50%);
+  background-attachment: fixed;
 }
 
-/* =========================
-   LAYOUT
-========================= */
+/* Texture จุดๆ (Noise) ให้ดูแพงขึ้น */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+}
+
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 50;
-  backdrop-filter: blur(14px);
-  background: rgba(255,255,255,0.6);
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  z-index: 100;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.5); /* ปรับ Header ให้ใสกว่า Panel ปกติ */
+  border-bottom: 1px solid var(--border);
 }
 
 :root.dark .site-header {
-  background: rgba(15,23,42,0.7);
+  background: rgba(15, 23, 42, 0.6);
 }
 
 .nav {
-  max-width: 960px;
-  margin: auto;
-  padding: 14px 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 64px;
   display: flex;
   align-items: center;
-  gap: 14px;
-}
-
-.nav .brand {
-  font-weight: 800;
-  text-decoration: none;
-  color: var(--text);
-}
-
-.nav a {
-  text-decoration: none;
-  color: var(--muted);
-}
-
-.nav a:hover {
-  color: var(--primary);
-}
-
-.nav .spacer {
-  flex: 1;
+  gap: 20px;
 }
 
 .site-content {
-  max-width: 960px;
-  margin: 32px auto 56px;
-  padding: 0 16px;
+  max-width: 1100px;
+  margin: 40px auto 80px;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1; /* ให้อยู่เหนือพื้นหลัง */
 }
 
-.site-footer {
-  text-align: center;
-  padding: 32px 16px;
-  color: var(--muted);
-}
-
-/* =========================
-   TYPOGRAPHY
-========================= */
-h1 {
-  font-size: clamp(30px, 4vw, 42px);
-  margin: 8px 0 14px;
-}
-
-h2 {
-  margin: 24px 0 10px;
-}
-
-p {
-  color: var(--muted);
-}
-
-/* =========================
-   CARD (ใช้ทุกหน้า)
-========================= */
+/* ==========================================================================
+   4. COMPONENTS (CARDS & GRIDS)
+   ========================================================================== */
 .card {
   background: var(--panel);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: var(--radius);
-  padding: 18px;
-  margin: 18px 0;
-  border: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  padding: 24px;
+  border: 1px solid var(--border);
+  
+  /* เพิ่มเงาและ Transition แบบนุ่มนวล (Spring Physics) */
+  box-shadow: 
+    0 10px 25px -5px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.4); 
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* =========================
-   GRID / UTIL
-========================= */
-.container {
-  padding: 12px 0 24px;
+.card:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 
+    0 20px 40px -10px rgba(6, 182, 212, 0.15),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+  border-color: rgba(6, 182, 212, 0.3);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
 }
 
 .row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  align-items: center;
   flex-wrap: wrap;
-  margin-top: 12px;
 }
 
-/* =========================
-   BUTTON (ทั่วไป)
-========================= */
-button,
-.btn {
-  padding: 10px 16px;
-  border-radius: 999px;
+/* ==========================================================================
+   5. BUTTONS & INTERACTIVE ELEMENTS
+   ========================================================================== */
+button, .btn {
+  padding: 10px 22px;
+  border-radius: 14px;
   border: none;
   font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
-  background: linear-gradient(
-    135deg,
-    var(--primary),
-    var(--primary-dark)
-  );
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
-  transition: all 0.15s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  
+  /* สำหรับ Effect แสงวิ่ง */
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
 }
 
-button:hover,
-.btn:hover {
-  box-shadow: 0 0 0 5px var(--ring);
-  transform: translateY(-1px);
+/* แสงวิ่งผ่านปุ่ม (Shine Effect) */
+button::after, .btn::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -75%;
+  width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+  transform: skewX(-25deg);
+  transition: 0.5s;
 }
 
-/* =========================
-   🔒 NEW POST PAGE ONLY
-   (card ที่มี input หรือ textarea เท่านั้น)
-========================= */
+button:hover, .btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+}
 
+button:hover::after, .btn:hover::after {
+  left: 125%; /* สั่งให้แสงวิ่ง */
+}
+
+button:active, .btn:active {
+  transform: scale(0.95); /* กดแล้วยุบ */
+}
+
+/* 🔒 Form Specific Styles */
 .card:has(input, textarea) {
-  max-width: 620px;
-  margin-inline: auto;
-  padding: 28px;
-}
-
-.card:has(input, textarea) h1 {
-  text-align: center;
-  margin-bottom: 20px;
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 40px;
 }
 
 .card:has(input, textarea) input,
 .card:has(input, textarea) textarea {
   width: 100%;
-  margin-bottom: 14px;
-  padding: 12px 14px;
-  font-size: 1rem;
+  margin-bottom: 20px;
+  padding: 14px 18px;
   border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.12);
-  background: rgba(255,255,255,0.85);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.5);
   color: var(--text);
   outline: none;
+  font-size: 1rem;
+  transition: all 0.2s;
 }
 
 :root.dark .card:has(input, textarea) input,
 :root.dark .card:has(input, textarea) textarea {
-  background: rgba(15,23,42,0.85);
-  border-color: rgba(255,255,255,0.12);
+  background: rgba(15, 23, 42, 0.4);
 }
 
 .card:has(input, textarea) input:focus,
 .card:has(input, textarea) textarea:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px var(--ring);
+  background: var(--panel);
+  transform: translateY(-1px);
 }
 
-.card:has(input, textarea) textarea {
-  min-height: 160px;
-  resize: vertical;
-}
-
-.card:has(input, textarea) button {
-  width: 100%;
-  margin-top: 8px;
-  font-size: 1rem;
-  font-weight: 700;
-}
-/* =========================
-   ROOT LAYOUT / NAVBAR
-========================= */
-
-/* Header */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  backdrop-filter: blur(14px);
-  background: rgba(255,255,255,0.75);
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-}
-
-:root.dark .site-header {
-  background: rgba(15,23,42,0.75);
-}
-
-/* Nav */
-.nav {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-/* Brand */
+/* ==========================================================================
+   6. NAVIGATION LINKS
+   ========================================================================== */
 .nav .brand {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 800;
-  letter-spacing: 0.4px;
-  text-decoration: none;
   color: var(--text);
-  white-space: nowrap;
+  text-decoration: none;
+  letter-spacing: -0.5px;
 }
 
-/* Links */
 .nav-link {
   position: relative;
-  font-size: 0.95rem;
   font-weight: 600;
-  text-decoration: none;
   color: var(--muted);
-  padding: 6px 4px;
-  transition: color 0.2s ease;
+  text-decoration: none;
+  padding: 8px 0;
+  transition: color 0.2s;
 }
 
-.nav-link:hover {
-  color: var(--primary);
-}
+.nav-link:hover { color: var(--primary); }
 
-/* underline animation */
 .nav-link::after {
   content: "";
   position: absolute;
-  left: 0;
-  bottom: -4px;
-  width: 0%;
-  height: 2px;
+  bottom: 0; left: 0;
+  width: 0%; height: 2px;
   background: var(--primary);
-  border-radius: 999px;
-  transition: width 0.25s ease;
+  border-radius: 2px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.nav-link:hover::after {
-  width: 100%;
+.nav-link:hover::after { width: 100%; }
+
+/* ==========================================================================
+   7. UTILITIES & TYPOGRAPHY (NEW ✨)
+   ========================================================================== */
+
+/* ตัวหนังสือไล่สี (ใช้กับ h1 หรือ class="text-gradient") */
+.text-gradient {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, #a5f3fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  display: inline-block;
 }
 
-/* Layout main */
-.site-content {
-  max-width: 1100px;
-  margin: 32px auto 64px;
-  padding: 0 20px;
+:root.dark .text-gradient {
+  background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Footer */
+/* Scrollbar แต่งเอง */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(6, 182, 212, 0.3);
+  border-radius: 20px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary);
+}
+
+/* ==========================================================================
+   8. FOOTER
+   ========================================================================== */
 .site-footer {
-  margin-top: 64px;
-  padding: 32px 16px 48px;
+  padding: 48px 24px;
   text-align: center;
-  font-size: 0.9rem;
   color: var(--muted);
-  border-top: 1px solid rgba(0,0,0,0.06);
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+  
+  /* Glass effect for footer too */
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(5px);
 }
 
 :root.dark .site-footer {
-  border-color: rgba(255,255,255,0.08);
+  background: rgba(15, 23, 42, 0.3);
+}
+/* ==========================================================================
+   9. SEARCH BAR STYLES (NEW ✨)
+   ========================================================================== */
+.search-wrapper {
+  display: flex;
+  gap: 12px;
+  margin: 30px 0;
+  max-width: 480px; /* จำกัดความกว้างไม่ให้ยืดเกินไป */
+  position: relative;
+}
+
+.search-input {
+  flex: 1; /* ให้ยืดเต็มพื้นที่ */
+  padding: 12px 24px;
+  border-radius: 50px; /* ทรงแคปซูล */
+  border: 1px solid var(--border);
+  background: var(--panel); /* ใช้พื้นหลังแบบกระจก */
+  backdrop-filter: blur(8px);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+}
+
+.search-input::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+/* Effect ตอนคลิกพิมพ์ */
+.search-input:focus {
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 4px var(--ring), 0 10px 20px rgba(0,0,0,0.1);
+  transform: translateY(-2px); /* ลอยขึ้นนิดนึง */
+}
+
+/* ปรับปุ่ม Search ให้เข้าชุดกัน */
+.search-btn {
+  border-radius: 50px !important; /* บังคับให้มนเท่า input */
+  padding-left: 28px !important;
+  padding-right: 28px !important;
+}
+
+:root.dark .search-input:focus {
+  background: rgba(30, 41, 59, 0.95);
 }
